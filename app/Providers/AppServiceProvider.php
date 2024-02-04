@@ -26,26 +26,26 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(abstract: PaymentGateway::class, concrete:  function () {
-            $currency = request()->request->get('currency') ?? 'usd';
-            $paymentMethod = request()->request->get('payment_method');
+            $currency = request()->request->get(key: 'currency') ?? 'usd';
+            $paymentMethod = request()->request->get(key: 'payment_method');
             if ($paymentMethod === 'paypal') {
-                return new PaypalPaymentService($currency);
+                return new PaypalPaymentService(currency: $currency);
             }
-            return new CreditCardPaymentService($currency);
+            return new CreditCardPaymentService(currency: $currency);
         });
 
-        $this->app->bind(UserService::class, function ($app) {
-            return new UserService($app->make(UserRepository::class));
+        $this->app->bind(abstract: UserService::class, concrete: function ($app) {
+            return new UserService(userRepository: $app->make(UserRepository::class));
         });
 
-        $this->app->singleton(Logger::class, function () {
+        $this->app->singleton(abstract: Logger::class, concrete: function () {
             return new Logger();
         });
 
         // Contextual binding based on a condition
-        $this->app->when(NotificationSenderService::class)
-            ->needs(NotificationSender::class)
-            ->give(function ($app) {
+        $this->app->when(concrete: NotificationSenderService::class)
+            ->needs(abstract: NotificationSender::class)
+            ->give(implementation: function ($app) {
                 // Determine the context or condition here
                 if (config('app.env') === 'local') {
                     return $app->make(EmailNotificationSender::class);
