@@ -23,6 +23,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/payment', [PaymentController::class, 'index']);
-Route::get('/user/{id}', [UserController::class, 'view']);
+Route::get('/user/{user}', [UserController::class, 'view']);
 Route::post('/logger', [LoggerController::class, 'store']);
 Route::post('/notification-send', [NotificationSendController::class, 'sendNotification']);

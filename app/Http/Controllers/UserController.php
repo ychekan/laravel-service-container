@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Services\UserService;
+use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -12,10 +13,17 @@ use Illuminate\Http\JsonResponse;
  */
 class UserController extends Controller
 {
-    public function view(int $id, UserService $userService): JsonResponse
+    /**
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function view(User $user): JsonResponse
     {
         return response()->json([
-            'data' => $userService->getUserData(id: $id)
+            'data' => [
+                'user' => $user->withoutRelations(),
+                'profile' => $user->profile->only((new Profile)->getFillable()),
+            ],
         ]);
     }
 }
